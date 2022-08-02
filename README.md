@@ -13,10 +13,10 @@ There are two stages, first scripts and data for preparing the map of Canada to 
 
 Preparing the map of Canada:
 
-- data/lpr_000b21a_e.shp is the cartographic boundary file of Canada and it's provinces from Statistics Canada: https://www12.statcan.gc.ca/census-recensement/2021/geo/sip-pis/boundary-limites/index2021-eng.cfm?year=21
+- data/ contains the cartographic boundary file (lpr_b00021a_e) of Canada and it's provinces from Statistics Canada. The files are too big to push to github but can be found here: https://www12.statcan.gc.ca/census-recensement/2021/geo/sip-pis/boundary-limites/index2021-eng.cfm?year=21
 - R/simplify_canada_map.R uses the rmapshapper package to simplify the boundary file for easier/faster mapping
 
-The App:
+The app:
 
 - app/data/provinces_cropped.rds is the resulting simplified boundary data for Canada
 - app/R/global.R contains the global definitions for the app
