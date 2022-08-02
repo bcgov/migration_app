@@ -1,31 +1,28 @@
-<!-- 
-Add a project state badge
-
-See <https://github.com/BCDevExchange/Our-Project-Docs/blob/master/discussion/projectstates.md> 
-If you have bcgovr installed and you use RStudio, click the 'Insert BCDevex Badge' Addin.
--->
+[![img](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
 migration_app
 ============================
 
 ### Usage
 
-Describe data being used (links), and how to run. Eg:
+Shiny App for visualizing provincial and international migration to/from BC.
 
-There are four core scripts that are required for the analysis, they need to be run in order:
+The data used in the app comes from the BC Data Catalogue: https://catalogue.data.gov.bc.ca/dataset/inter-provincial-and-international-migration
 
--   01\_clean.R
--   02\_analysis.R
--   03\_visualize.R
--   04\_output.R
+There are two stages, first scripts and data for preparing the map of Canada to be used in the app and second scripts and data for running the app.
 
-#### Example
+Preparing the map of Canada:
 
-This is a basic example which shows you how to solve a common problem:
+- data/lpr_000b21a_e.shp is the cartographic boundary file of Canada and it's provinces from Statistics Canada: https://www12.statcan.gc.ca/census-recensement/2021/geo/sip-pis/boundary-limites/index2021-eng.cfm?year=21
+- R/simplify_canada_map.R uses the rmapshapper package to simplify the boundary file for easier/faster mapping
 
-``` r
-## basic example code
-```
+The App:
+
+- app/data/provinces_cropped.rds is the resulting simplified boundary data for Canada
+- app/R/global.R contains the global definitions for the app
+- app/www/ contains syle files for the app (including BC Sans font files, BCStats logo, etc.)
+- app/app.R contains the code for the app
+
 
 ### Project Status
 
@@ -56,4 +53,3 @@ See the License for the specific language governing permissions and limitations 
 ```
 ---
 *This project was created using the [bcgovr](https://github.com/bcgov/bcgovr) package.* 
-App for visualizing provincial and internation migration to/from BC
