@@ -9,7 +9,7 @@ ui <- function(req) {
     bcsapps::bcsHeaderUI(id = 'header', appname = "Migration of British Columbians"),
 
     ## CSS for resizing map based on browser window size
-    tags$head(tags$style("#map{height:50vh !important;}")),
+    tags$head(tags$style("#map{height:55vh !important;}")),
 
     column(width = 12,
            style = "margin-top:100px",
@@ -175,37 +175,33 @@ server <- function(input, output) {
              long_start = ifelse(`Net Migration` < 0, BC_Longitude, Longitude),
              lat_end = ifelse(`Net Migration` < 0, Latitude, BC_Latitude),
              long_end = ifelse(`Net Migration` < 0, Longitude, BC_Longitude),
-             mig_color = ifelse(`Net Migration` < 0, "neg","pos")) %>%
-      st_as_sf(coords = c("Longitude", "Latitude"), crs = 4326, agr = "constant", remove = FALSE)
+             mig_color = ifelse(`Net Migration` < 0, "neg","pos")) 
 
     ggplot() +
       geom_sf(data = provinces, color = "#5b5f66") +
       geom_sf(data = provinces %>% filter(PRENAME == "British Columbia"), fill = "#FBC140") +
-      geom_spatial_segment(data = map_data,
-                           aes(long_start,
-                               lat_start,
+      geom_segment(data = map_data,
+                           aes(x = long_start,
+                               y = lat_start,
                                xend = long_end,
                                yend = lat_end,
                                color = mig_color,
                                size = abs(`Net Migration`)),
-                           crs = 4326,
                            arrow = arrow(length = unit(0.4, "cm"), type = "closed"),
                            lineend = "round") +
-      stat_spatial_identity(data = map_data,
+      geom_label(data = map_data,
                             aes(Longitude,
                                 Latitude,
                                 label = paste(Jurisdiction, prettyNum(`Net Migration`, big.mark = ",")),
                                 color = mig_color,
                                 hjust = hjust,
                                 vjust = vjust),
-                            crs = 4326,
-                            geom = "label",
-                            fontface = "bold") +
+                                fontface = "bold") +
       scale_color_manual(values = colors) +
-      scale_size_continuous(range = c(0.1,5)) +
+      scale_size_continuous(range = c(0.2,7)) +
       guides(color = "none",
              size = "none") +
-      coord_sf(clip = "off", expand = TRUE) +
+      coord_sf(clip = "off", expand = TRUE, crs = 4326) +
       theme_map()
   })
 
