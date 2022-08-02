@@ -9,19 +9,19 @@ Shiny App for visualizing provincial and international migration to/from BC.
 
 The data used in the app comes from the BC Data Catalogue: https://catalogue.data.gov.bc.ca/dataset/inter-provincial-and-international-migration
 
-There are two stages, first scripts and data for preparing the map of Canada to be used in the app and second scripts and data for running the app.
+There are two stages in the app development. First scripts and data for preparing the map of Canada to be used in the app and second scripts and data for running the app.
 
 Preparing the map of Canada:
 
-- data/ contains the cartographic boundary file (lpr_b00021a_e) of Canada and it's provinces from Statistics Canada. The files are too big to push to github but can be found here: https://www12.statcan.gc.ca/census-recensement/2021/geo/sip-pis/boundary-limites/index2021-eng.cfm?year=21
-- R/simplify_canada_map.R uses the rmapshapper package to simplify the boundary file for easier/faster mapping
+- **data/** contains the cartographic boundary file (lpr_b00021a_e) of Canada and it's provinces from Statistics Canada. The files are too big to push to github but can be found here: https://www12.statcan.gc.ca/census-recensement/2021/geo/sip-pis/boundary-limites/index2021-eng.cfm?year=21
+- **R/simplify_canada_map.R** uses the rmapshapper package to simplify the boundary file for easier/faster mapping
 
 The app:
 
-- app/data/provinces_cropped.rds is the resulting simplified boundary data for Canada
-- app/R/global.R contains the global definitions for the app
-- app/www/ contains syle files for the app (including BC Sans font files, BCStats logo, etc.)
-- app/app.R contains the code for the app
+- **app/data/provinces_cropped.rds** is the resulting simplified boundary data for Canada
+- **app/R/global.R** contains the global definitions for the app
+- **app/www/** contains syle files for the app (including BC Sans font files, BCStats logo, etc.)
+- **app/app.R** contains the code for the app
 
 
 ### Project Status
