@@ -1,21 +1,19 @@
 
 ## Some useful libraries
 library(shiny)
-library(shinydashboard)
-library(tidyverse)  ## for data manipulation
-library(janitor)    ## for cleaning data (includes rounding functions)
-library(lubridate)  ## for dates
-library(DT)         ## for tables
-library(bcdata)     ## for connecting with BCDC
-library(sf)         ## spatial features
-library(ggspatial)  ## spacial mapping
-library(grid)       ## arrows on map
+library(magrittr) ## for pipe %>%
+## to improve load time of app, replaced library statements with namespace syntax
+#library(tidyverse)  ## for data manipulation
+#library(janitor)    ## for cleaning data (includes rounding functions)
+#library(DT)         ## for tables
+#library(bcdata)     ## for connecting with BCDC
+#library(grid)       ## arrows on map
 
 ## Migration data ----
-interprovincial <- bcdc_get_data(record = '56610cfc-02ba-41a7-92ef-d9609ef507f1',
+interprovincial <- bcdata::bcdc_get_data(record = '56610cfc-02ba-41a7-92ef-d9609ef507f1',
                                  resource = '95579825-bfa2-4cab-90fa-196e0ecc8626')
 
-international <-  bcdc_get_data(record = '56610cfc-02ba-41a7-92ef-d9609ef507f1',
+international <-  bcdata::bcdc_get_data(record = '56610cfc-02ba-41a7-92ef-d9609ef507f1',
                                 resource = 'c99d63f6-5ec4-4ac0-9c07-c0352f2f1928')
 
 quarter_labels <- tibble::tribble(
@@ -51,20 +49,21 @@ locations <- tibble::tribble(
 colors <- c("pos" = "#40c77a","neg" = "#a31515")
 
 theme_map <- function(base_size=9, base_family="") {
-  require(grid)
-  theme_bw(base_size=base_size, base_family=base_family) %+replace%
-    theme(axis.line=element_blank(),
-          axis.text=element_blank(),
-          axis.ticks=element_blank(),
-          axis.title=element_blank(),
-          panel.background=element_blank(),
-          panel.border=element_blank(),
-          panel.grid=element_blank(),
-          panel.spacing=unit(0, "lines"),
-          plot.background=element_blank(),
-          legend.justification = c(0,0),
-          legend.position = c(0,0)
+  
+  '%+replace%' <- ggplot2::'%+replace%'
+  ggplot2::theme_bw(base_size=base_size, base_family=base_family) %+replace%
+    ggplot2::theme(axis.line=ggplot2::element_blank(),
+                   axis.text=ggplot2::element_blank(),
+                   axis.ticks=ggplot2::element_blank(),
+                   axis.title=ggplot2::element_blank(),
+                   panel.background=ggplot2::element_blank(),
+                   panel.border=ggplot2::element_blank(),
+                   panel.grid=ggplot2::element_blank(),
+                   panel.spacing=ggplot2::unit(0, "lines"),
+                   plot.background=ggplot2::element_blank(),
+                   legend.justification = c(0,0),
+                   legend.position = c(0,0)
     )
 }
-theme_set(theme_map())
+ggplot2::theme_set(theme_map())
 
