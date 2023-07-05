@@ -49,7 +49,7 @@ ui <- function(req) {
                        h2("Net Migration by Province"),
                        plotOutput("map"),
                        h2("Migration Details"),
-                       DTOutput("table")
+                       DT::DTOutput("table")
 
              )
            )
@@ -73,10 +73,10 @@ server <- function(input, output) {
   output$year <- renderUI({
 
     choices <- interprovincial %>%
-      select(Year) %>%
+      dplyr::select(Year) %>%
       unique() %>%
-      arrange(desc(Year)) %>%
-      pull()
+      dplyr::arrange(desc(Year)) %>%
+      dplyr::pull()
 
     selectInput("map_year",
                 label = "Year",
@@ -92,16 +92,17 @@ server <- function(input, output) {
     year <- input$map_year
 
     quarters <- interprovincial %>%
-      filter(Year == year) %>%
-      select(Quarter) %>%
+      dplyr::filter(Year == year) %>%
+      dplyr::select(Quarter) %>%
       unique() %>%
-      left_join(quarter_labels, by = "Quarter")
+      dplyr::left_join(quarter_labels, by = "Quarter")
 
     choices <- setNames(quarters$Quarter, quarters$Label)
 
     selectInput("map_quarter",
                 label = "Quarter",
-                choices = choices)
+                choices = choices,
+                selected = choices[1])
 
   })
 
@@ -132,87 +133,87 @@ server <- function(input, output) {
 
     ## interprovincial
     table_data_prep_prov <- interprovincial %>%
-      filter(Year == input$map_year, Quarter == input$map_quarter) %>%
-      select(-Total) %>%
-      pivot_longer(-c(Year, Quarter, Origin), names_to = "Destination", values_to = "value") %>%
-      filter(Origin == "B.C." | Destination == "B.C." )
+      dplyr::filter(Year == input$map_year, Quarter == input$map_quarter) %>%
+      dplyr::select(-Total) %>%
+      tidyr::pivot_longer(-c(Year, Quarter, Origin), names_to = "Destination", values_to = "value") %>%
+      dplyr::filter(Origin == "B.C." | Destination == "B.C." )
 
     from_bc <- table_data_prep_prov %>%
-      filter(Origin == "B.C.") %>%
-      select(Year, Quarter, Jurisdiction = "Destination", `From BC` = value)
+      dplyr::filter(Origin == "B.C.") %>%
+      dplyr::select(Year, Quarter, Jurisdiction = "Destination", `From BC` = value)
 
     to_bc <- table_data_prep_prov%>%
-      filter(Destination == "B.C.") %>%
-      select(Year, Quarter, Jurisdiction = "Origin", `To BC` = value)
+      dplyr::filter(Destination == "B.C.") %>%
+      dplyr::select(Year, Quarter, Jurisdiction = "Origin", `To BC` = value)
 
     ## international
     table_data_prep_internat <- international %>%
-      filter(Year == input$map_year, Quarter == input$map_quarter) %>%
-      mutate(Jurisdiction = "International",
+      dplyr::filter(Year == input$map_year, Quarter == input$map_quarter) %>%
+      dplyr::mutate(Jurisdiction = "International",
              `From BC`= Emigrants + Net_temporary_emigrants - Returning_emigrants,
              `To BC` = Immigrants + Net_non_permanent_residents) %>%
-      select(Year, Quarter, Jurisdiction, `From BC`, `To BC`, `Net Migration` = Net_migration)
+      dplyr::select(Year, Quarter, Jurisdiction, `From BC`, `To BC`, `Net Migration` = Net_migration)
 
     table_data <- from_bc %>%
-      left_join(to_bc, by = c("Year","Quarter", "Jurisdiction")) %>%
-      mutate(`Net Migration` = `To BC`-`From BC`) %>%
-      bind_rows(table_data_prep_internat) %>%
-      adorn_totals("row",
+      dplyr::left_join(to_bc, by = c("Year","Quarter", "Jurisdiction")) %>%
+      dplyr::mutate(`Net Migration` = `To BC`-`From BC`) %>%
+      dplyr::bind_rows(table_data_prep_internat) %>%
+      janitor::adorn_totals("row",
                    fill = "-",
                    na.rm = TRUE,
                    name = "Total",
                    `From BC`:`Net Migration`) %>%
-      filter(Jurisdiction != "B.C.")
+      dplyr::filter(Jurisdiction != "B.C.")
 
   }) %>% bindCache(input$map_year, input$map_quarter)
 
   ## Map ----
   output$map <- renderPlot({
-
+    
     map_data <- locations %>%
-      left_join(data(), by = "Jurisdiction") %>%
-      mutate(lat_start = ifelse(`Net Migration` < 0, BC_Latitude, Latitude),
+      dplyr::left_join(data(), by = "Jurisdiction") %>%
+      dplyr::mutate(lat_start = ifelse(`Net Migration` < 0, BC_Latitude, Latitude),
              long_start = ifelse(`Net Migration` < 0, BC_Longitude, Longitude),
              lat_end = ifelse(`Net Migration` < 0, Latitude, BC_Latitude),
              long_end = ifelse(`Net Migration` < 0, Longitude, BC_Longitude),
              mig_color = ifelse(`Net Migration` < 0, "neg","pos")) 
 
-    ggplot() +
-      geom_sf(data = provinces, color = "#5b5f66") +
-      geom_sf(data = provinces %>% filter(PRENAME == "British Columbia"), fill = "#FBC140") +
-      geom_segment(data = map_data,
-                           aes(x = long_start,
+    ggplot2::ggplot() +
+      ggplot2::geom_sf(data = provinces, color = "#5b5f66") +
+      ggplot2::geom_sf(data = provinces %>% dplyr::filter(PRENAME == "British Columbia"), fill = "#FBC140") +
+      ggplot2::geom_segment(data = map_data,
+                  ggplot2::aes(x = long_start,
                                y = lat_start,
                                xend = long_end,
                                yend = lat_end,
                                color = mig_color,
                                size = abs(`Net Migration`)),
-                           arrow = arrow(length = unit(0.4, "cm"), type = "closed"),
+                           arrow = grid::arrow(length = ggplot2::unit(0.4, "cm"), type = "closed"),
                            lineend = "round") +
-      geom_label(data = map_data,
-                            aes(Longitude,
+      ggplot2::geom_label(data = map_data,
+                   ggplot2::aes(Longitude,
                                 Latitude,
                                 label = paste(Jurisdiction, prettyNum(`Net Migration`, big.mark = ",")),
                                 color = mig_color,
                                 hjust = hjust,
                                 vjust = vjust),
                                 fontface = "bold") +
-      scale_color_manual(values = colors) +
-      scale_size_continuous(range = c(0.2,7)) +
-      guides(color = "none",
+      ggplot2::scale_color_manual(values = colors) +
+      ggplot2::scale_size_continuous(range = c(0.2,7)) +
+      ggplot2::guides(color = "none",
              size = "none") +
-      coord_sf(clip = "off", expand = TRUE, crs = 4326) +
+      ggplot2::coord_sf(clip = "off", expand = TRUE, crs = 4326) +
       theme_map()
   })
 
   ## Table ----
-  output$table <- renderDT({
-
-    datatable(data(),
+  output$table <- DT::renderDT({
+    
+    DT::datatable(data(),
               rownames = FALSE,
               options= list(dom = "t",
                             paging = FALSE)) %>%
-      formatRound(columns = 4:6, digits = 0)
+      DT::formatRound(columns = 4:6, digits = 0)
   })
 
   }
